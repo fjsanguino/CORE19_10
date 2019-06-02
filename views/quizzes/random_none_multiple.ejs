@@ -5,12 +5,12 @@
 
 <p>
 	You	answered all questions.	You	are a champion.
-	Your score is <%=scoreNormal%>
+	Your score is <%=scoreMultiple%>
 </p>
 
 <% if (session.user) { %>
 	<form method="post" action="/quizzes/randomupdatescore/<%= session.user.id %>?_method=PUT">
-	    <button type="submit" name = "scoreNormal" value = "<%= scoreNormal%>">Continue</button>
+	    <button type="submit" name = "scoreMultiple" value = "<%= scoreMultiple%>">Continue <%=scoreMultiple%></button>
 	</form>
 <% } else { %>
 	<p>

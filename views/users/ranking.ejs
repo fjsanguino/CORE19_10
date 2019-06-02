@@ -1,0 +1,15 @@
+<h1>
+    BEST SCORES!!
+</h1>
+
+<table>
+    <% for (var i in users) { %>
+    <tr>
+        <td>
+        <a href="/users/<%= users[i].id %>" ><%= users[i].username %></a> has <%=users[i].score %> points.
+        </td>
+        
+    </tr>
+    <%  } %>
+</table>
+

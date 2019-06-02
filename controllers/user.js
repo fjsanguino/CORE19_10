@@ -6,6 +6,7 @@ const {models} = require("../models");
 const paginate = require('../helpers/paginate').paginate;
 const authentication = require('../helpers/authentication');
 
+
 // Autoload the user with id equals to :userId
 exports.load = (req, res, next, userId) => {
 
@@ -54,6 +55,56 @@ exports.index = (req, res, next) => {
     .catch(error => next(error));
 };
 
+// GET /users/ranking
+
+exports.ranking = (req, res, next) => {
+
+    models.user.count()
+    .then(count => {
+
+        // Pagination:
+
+        const items_per_page = 10;
+
+        // The page to show is given in the query
+        const pageno = parseInt(req.query.pageno) || 1;
+
+        // Create a String with the HTMl used to render the pagination buttons.
+        // This String is added to a local variable of res, which is used into the application layout file.
+        res.locals.paginate_control = paginate(count, items_per_page, pageno, req.url);
+
+        const findOptions = {
+            offset: items_per_page * (pageno - 1),
+            limit: items_per_page,
+            order: ['score']
+        };
+
+        return models.user.findAll(findOptions);
+    })
+    .then(users => {
+        res.render('users/ranking', {users});
+    })
+    .catch(error => next(error));
+};
+
+/*exports.rankinggraph = (req, res, next) => {
+    
+    let winners = [];
+    let scores = [];
+    let i = 0;
+
+    models.user.findAll({order:['score']})
+    .then( users => {
+        users.forEach (user => {
+            winners[i] = user.username;
+            scores[i] = user.scores;
+            })
+        res.render('users/renkinggraph', {winners, scores});
+    })
+    .catch(error => next(error));
+};*/
+
+
 // GET /users/:userId
 exports.show = (req, res, next) => {
 
@@ -88,10 +139,11 @@ exports.create = (req, res, next) => {
     // Create the token field:
     user.token = authentication.createToken();
 
+
     // Save into the data base
     user.save({fields: ["username", 'token', "password", "salt"]})
     .then(user => { // Render the users page
-        req.flash('success', 'User created successfully.');
+        req.flash('success', 'User created successfully.' + user.score);
         if (req.session.user) {
             res.redirect('/users/' + user.id);
         } else {
@@ -149,6 +201,68 @@ exports.update = (req, res, next) => {
     })
     .catch(error => next(error));
 };
+
+//PUT /quizzes/randomupdatescore/:userId
+ exports.updatescore = (req, res, next) =>{
+
+    const {user, body} = req;
+    
+    //user.username = "el guapo";
+    //user.token = "new token"
+    user.score = user.score || 0;
+    user.scoremultiple = user.scoremultiple || 0;
+    user.scoremultiple = user.scoremultiple || 0;  
+
+    body.scoreNormal = body.scoreNormal || 0;
+    body.scoreMultiple = body.scoreMultiple || 0;
+
+    /*.scorenormal = body.scoreNormal;
+    user.scoremultiple = body.scoreMultiple;
+
+
+    user.save({fields: ["username", "token", "scorenormal", "scoremultiple", "score"]})
+    .then( user =>{
+        req.flash('success', 'User score updated successfully. Score.body:' + user.username + ' '+ body.scoreMultiple + ' '+ body.scoreNormal + ' ' + body.score);
+        req.flash('success', 'User score updated successfully. Score.user:'+ user.scoremultiple + ' '+ user.scoreNormal + ' ' + user.score);
+
+        res.redirect('/quizzes');
+
+    })*/
+
+    if (body.scoreNormal > user.scoreNormal){
+        user.scoreNormal = body.scoreNormal;
+    }
+
+    
+    if (body.scoreMultiple > user.scoreMultiple){
+         user.scoreMultiple = body.scoreMultiple;
+    }
+
+    
+    models.quiz.count()
+     .then( count => {
+        user.score = (user.scoreNormal + user.scoreMultiple)*count;
+        return user.save({fields: ["scoreNormal", "scoreMultiple", "score"]});
+    })
+    .then( user =>{
+        req.flash('success', 'User score updated successfully. Score.body:'+ body.scoreMultiple + ' '+ body.scoreNormal + ' ' + body.score);
+        req.flash('success', 'User score updated successfully. Score.user:'+ user.scoreMultiple + ' '+ user.scoreNormal + ' ' + user.score);
+
+        res.redirect('/quizzes');
+
+    })
+    .catch(Sequelize.ValidationError, error => {
+        req.flash('error', 'There are errors in the form:');
+        error.errors.forEach(({message}) => req.flash('error', message));
+        res.render('users/edit', {user});
+    })
+    .catch(error => {
+        next(error);
+    });
+    
+
+ }
+
 
 
 // DELETE /users/:userId

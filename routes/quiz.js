@@ -68,6 +68,10 @@ router.delete('/session', sessionController.destroy); // close sesion
 router.get('/users',
     sessionController.loginRequired,
     userController.index);
+router.get('/users/ranking',
+    userController.ranking);
+/*router.get('/users/rankinggraph',
+    userController.rankinggraph);*/
 router.get('/users/:userId(\\d+)',
     sessionController.loginRequired,
     userController.show);
@@ -96,6 +100,11 @@ router.delete('/users/:userId(\\d+)',
     sessionController.loginRequired,
     sessionController.adminOrMyselfRequired,
     userController.destroy);
+
+router.put('/quizzes/randomupdatescore/:userId(\\d+)',
+    sessionController.loginRequired,
+    sessionController.adminOrMyselfRequired,
+    userController.updatescore);
 
 
 router.put('/users/:userId(\\d+)/token',

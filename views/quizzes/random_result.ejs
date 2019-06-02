@@ -6,20 +6,29 @@
 	The	answer	<strong>	<%=	answer	%>	</strong>	is	<%=	result	? 'right' :	'wrong'	%>.
 </p>
 
-<div>
+<% if (session.user) { %>
+	<p>
+		<%	if	(!result)	{	%>
+		You have failed: Your Score has been <span	id="score"><%=scoreNormal %></span>		
+		<form method="post" action="/quizzes/randomupdatescore/<%= session.user.id %>?_method=PUT">
+	    	<button type="submit" name = "scoreNormal" value = "<%= scoreNormal%>">Continue</button>
+		</form>
+		<%	}	else	{	%>
+		You	have	succeeded.
+		Successful	answers	=	<span	id="score"><%=	scoreNormal	%></span>		
+		<a	href="/quizzes/randomplay"><button>Continue	playing</button></a>
+		<% } %>
+	</p>
+<% } else { %>
+	<p>
 	<%	if	(!result)	{	%>
-		You have failed: Your Score has been <span	id="score"><%=score %></span>
+		You have failed: Your Score has been <span	id="score"><%=scoreNormal %></span>
+		<a	href="/quizzes">	End	of	Play	</a>
 	<%	}	else	{	%>
 		You	have	succeeded.
-		Successful	answers	=	<span	id="score"><%=	score	%></span>
+		Successful	answers	=	<span	id="score"><%=	scoreNormal	%></span>
+		<a	href="/quizzes/randomplay"><button>Continue	playing</button></a>
 	<% } %>
-</div>
+	</p>
+<% } %>
 
-
-<p>
-	<%	if	(!result)	{	%>
-	<a	href="/quizzes">	End	of	Play	</a>
-	<%	}	else	{	%>
-	<a	href="/quizzes/randomplay"><button>Continue	playing</button></a>
-	<% } %>
-</p>

@@ -20,6 +20,23 @@
         </li>
     <% } %>
 
+    <li>
+        Total Score:
+        <b><%= user.score %></b>
+    </li>
+
+    <li>
+        Normal Score:
+        <b><%= user.scorenormal %></b>
+    </li>
+
+    <li>
+        Multiple Choice Score:
+        <b><%= user.scoremultiple %></b>
+    </li>
+
+
+
 </ul>
 
 <% if (session.user) { %>
